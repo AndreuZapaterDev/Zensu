@@ -29,3 +29,27 @@ button {
 button:hover {
   background: #2563eb;
 }
+
+.auth-card {
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  background: #f9fafb;
+}
+
+.auth-card input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.75rem;
+  background: white;
+  font-size: 1rem;
+}
+
+.message {
+  color: #334155;
+  font-size: 0.95rem;
+}
