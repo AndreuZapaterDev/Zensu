@@ -1,76 +1,49 @@
-import { useEffect, useState } from 'react'
-import { supabase } from './lib/supabaseClient'
+import { Link, Outlet, useLocation } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import logo from './resources/images/Zensu_logo_nb.png'
 
 function App() {
-  const [email, setEmail] = useState('')
-  const [message, setMessage] = useState('')
-  const [session, setSession] = useState<string | null>(null)
-
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession()
-      setSession(data.session?.user?.email ?? null)
-    }
-
-    checkSession()
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, authSession) => {
-      setSession(authSession?.session?.user?.email ?? null)
-    })
-
-    return () => {
-      listener.subscription.unsubscribe()
-    }
-  }, [])
-
-  const handleSignIn = async () => {
-    setMessage('Enviando enlace mágico...')
-
-    const { error } = await supabase.auth.signInWithOtp({ email })
-    if (error) {
-      setMessage(`Error: ${error.message}`)
-      return
-    }
-
-    setMessage('Revisa tu correo para iniciar sesión con el enlace mágico.')
-  }
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    setMessage('Sesión cerrada.')
-  }
+  const location = useLocation()
+  const hideHeader = location.pathname === '/' || location.pathname === '/auth'
 
   return (
-    <div className="app-container">
-      <h1>Bienvenido a Zensu React TS</h1>
-      <p>Esta app está enlazada a Supabase.</p>
+    <motion.div
+      className="app-container"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, ease: 'easeOut' }}
+    >
+      {!hideHeader && (
+        <header className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <img src={logo} alt="Zensu logo" className="h-12 w-12 object-contain" />
+            <div>
+              <h1 className="text-3xl font-semibold text-slate-900">Zensu</h1>
+              <p className="text-slate-600">React + Router + Supabase</p>
+            </div>
+          </div>
 
-      <div className="auth-card">
-        <p>
-          {session
-            ? `Sesión activa como ${session}`
-            : 'Introduce tu correo para recibir un enlace mágico de acceso.'}
-        </p>
+          <nav className="flex flex-wrap gap-3">
+            <Link
+              to="/"
+              className="rounded-full bg-sky-600 px-5 py-2 text-white transition hover:bg-sky-700"
+            >
+              Inicio
+            </Link>
+            <Link
+              to="/auth"
+              className="rounded-full border border-slate-200 bg-white px-5 py-2 text-slate-700 transition hover:bg-slate-100"
+            >
+              Login / Registro
+            </Link>
+          </nav>
+        </header>
+      )}
 
-        {!session ? (
-          <>
-            <input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="tunombre@correo.com"
-            />
-            <button disabled={!email} onClick={handleSignIn}>
-              Enviar enlace mágico
-            </button>
-          </>
-        ) : (
-          <button onClick={handleSignOut}>Cerrar sesión</button>
-        )}
-
-        {message && <p className="message">{message}</p>}
-      </div>
-    </div>
+      <main>
+        <Outlet />
+      </main>
+    </motion.div>
   )
 }
 
